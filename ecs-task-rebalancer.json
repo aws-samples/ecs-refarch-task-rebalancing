@@ -1,0 +1,122 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Creates a lambda to proactively rebalance ECS tasks based on ECS Event Stream",
+  "Parameters": {
+    "ECSClusterName": {
+      "Type": "String",
+      "Description": "Name of the ECS Cluster.",
+      "Default" : "default"
+    },
+    "ServiceName": {
+      "Type": "String",
+      "Description": "Name of the service deployed on ECS Cluster.",
+      "Default" : "sample-webapp"
+    }
+  },
+  "Resources": {
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [{ "Effect": "Allow", "Principal": {"Service": ["lambda.amazonaws.com"]}, "Action": ["sts:AssumeRole"] }]
+        },
+        "Path": "/",
+        "Policies": [{
+          "PolicyName": "root",
+          "PolicyDocument": {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Action": [
+                  "xray:PutTraceSegments",
+                  "xray:PutTelemetryRecords"
+                ],
+                "Resource": [
+                  "*"
+                ]
+              },
+              {
+                "Action": [
+                  "ecs:describeContainerInstances",
+                  "ecs:listTaskDefinitions",
+                  "ecs:describeTaskDefinition",
+                  "ecs:registerTaskDefinition",
+                  "ecs:updateService"
+                ],
+                "Effect": "Allow",
+                "Resource": "*"
+              },
+              {
+                "Sid": "IAMPassRoleForCloudWatchEvents",
+                "Effect": "Allow",
+                "Action": "iam:PassRole",
+                "Resource": "arn:aws:iam::*:role/AWS_Events_Invoke_Targets"
+              }
+            ]
+          }
+        }]
+      }
+    },
+    "LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Handler": "index.handler",
+        "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
+        "Code": {
+          "S3Bucket": "wad-ancestry",
+          "S3Key": "ecs-task-rebalancer.zip"
+        },
+        "Runtime": "nodejs4.3",
+        "Timeout": "30",
+        "TracingConfig": {
+          "Mode": "Active"
+        },
+        "Environment": {
+          "Variables": {
+            "ECSClusterName": {
+              "Ref": "ECSClusterName"
+            },
+            "ServiceName": {
+              "Ref": "ServiceName"
+            }
+          }
+        }
+      }
+    },
+    "ScheduledRule": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "Description": "ScheduledRule",
+        "EventPattern": {
+          "source": [
+            "aws.ecs"
+          ],
+          "detail-type": [
+            "ECS Container Instance State Change"
+          ],
+          "detail": {
+            "clusterArn": [
+              "arn:aws:ecs:us-east-1:555360056434:cluster/default"
+            ]
+          }
+        },
+        "State": "ENABLED",
+        "Targets": [{
+          "Arn": { "Fn::GetAtt": ["LambdaFunction", "Arn"] },
+          "Id": "TargetFunctionV1"
+        }]
+      }
+    },
+    "PermissionForEventsToInvokeLambda": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "FunctionName": { "Ref": "LambdaFunction" },
+        "Action": "lambda:InvokeFunction",
+        "Principal": "events.amazonaws.com",
+        "SourceArn": { "Fn::GetAtt": ["ScheduledRule", "Arn"] }
+      }
+    }
+  }
+}
