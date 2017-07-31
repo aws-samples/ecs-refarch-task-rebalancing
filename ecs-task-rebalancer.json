@@ -11,6 +11,11 @@
       "Type": "String",
       "Description": "Name of the service deployed on ECS Cluster.",
       "Default" : "sample-webapp"
+    },
+    "S3BucketName": {
+      "Type": "String",
+      "Description": "Name of the bucket where the zip file is stored.",
+      "Default" : ""
     }
   },
   "Resources": {
@@ -65,7 +70,9 @@
         "Handler": "index.handler",
         "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
         "Code": {
-          "S3Bucket": "wad-ancestry",
+          "S3Bucket": {
+              "Ref": "S3BucketName"
+            },
           "S3Key": "ecs-task-rebalancer.zip"
         },
         "Runtime": "nodejs4.3",
@@ -98,7 +105,23 @@
           ],
           "detail": {
             "clusterArn": [
-              "arn:aws:ecs:us-east-1:555360056434:cluster/default"
+              {
+                "Fn::Join": [ 
+                  ":", [
+                    "arn",
+                    "aws",
+                    "ecs",
+                    { 
+                      "Ref" : "AWS::Region"
+                    },
+                    { "Ref" : "AWS::AccountId"
+                    },
+                    { 
+                      "Fn::Sub": "cluster/${ECSClusterName}"
+                    }
+                  ]
+                ]
+              }
             ]
           }
         },
