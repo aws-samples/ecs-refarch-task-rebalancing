@@ -58,6 +58,15 @@
                 "Effect": "Allow",
                 "Action": "iam:PassRole",
                 "Resource": "arn:aws:iam::*:role/AWS_Events_Invoke_Targets"
+              },
+              {
+                "Effect": "Allow",
+                "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                ],
+                "Resource": "arn:aws:logs:*:*:*"
               }
             ]
           }
@@ -105,23 +114,7 @@
           ],
           "detail": {
             "clusterArn": [
-              {
-                "Fn::Join": [ 
-                  ":", [
-                    "arn",
-                    "aws",
-                    "ecs",
-                    { 
-                      "Ref" : "AWS::Region"
-                    },
-                    { "Ref" : "AWS::AccountId"
-                    },
-                    { 
-                      "Fn::Sub": "cluster/${ECSClusterName}"
-                    }
-                  ]
-                ]
-              }
+              { "Fn::Join": [ ":", ["arn","aws","ecs",{ "Ref" : "AWS::Region" },{ "Ref" : "AWS::AccountId" },{ "Fn::Sub": "cluster/${ECSClusterName}" }]] }
             ]
           }
         },
