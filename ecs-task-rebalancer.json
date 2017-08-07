@@ -7,11 +7,6 @@
       "Description": "Name of the ECS Cluster.",
       "Default" : "default"
     },
-    "ServiceName": {
-      "Type": "String",
-      "Description": "Name of the service deployed on ECS Cluster.",
-      "Default" : "sample-webapp"
-    },
     "S3BucketName": {
       "Type": "String",
       "Description": "Name of the bucket where the zip file is stored.",
@@ -48,6 +43,8 @@
                   "ecs:listTaskDefinitions",
                   "ecs:describeTaskDefinition",
                   "ecs:registerTaskDefinition",
+                  "ecs:listServices",
+                  "ecs:DescribeServices",
                   "ecs:updateService"
                 ],
                 "Effect": "Allow",
@@ -76,7 +73,7 @@
     "LambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
-        "Handler": "index.handler",
+        "Handler": "ecs-task-rebalancer.lambda_handler",
         "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
         "Code": {
           "S3Bucket": {
@@ -84,8 +81,8 @@
             },
           "S3Key": "ecs-task-rebalancer.zip"
         },
-        "Runtime": "nodejs4.3",
-        "Timeout": "30",
+        "Runtime": "python2.7",
+        "Timeout": "60",
         "TracingConfig": {
           "Mode": "Active"
         },
@@ -93,9 +90,6 @@
           "Variables": {
             "ECSClusterName": {
               "Ref": "ECSClusterName"
-            },
-            "ServiceName": {
-              "Ref": "ServiceName"
             }
           }
         }
