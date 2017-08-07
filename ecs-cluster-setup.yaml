@@ -464,10 +464,6 @@ Resources:
         Value: VPC for ECS Demo
     Type: AWS::EC2::VPC
 Outputs:
-  ECSServiceName:
-    Value: !Ref 'service'
-    Export: 
-      Name: 'DemoECSServiceName'
   ECSCluster:
     Value: !Ref 'ECSCluster'
     Export:
