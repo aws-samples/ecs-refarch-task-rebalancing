@@ -2,14 +2,14 @@
   "AWSTemplateFormatVersion": "2010-09-09",
   "Description": "Creates a lambda to proactively rebalance ECS tasks based on ECS Event Stream",
   "Parameters": {
-    "ECSClusterName": {
+    "ECSClusterNameExport": {
       "Type": "String",
-      "Description": "Name of the ECS Cluster.",
-      "Default" : "default"
+      "Description": "Export from the ecs cluster creation stack.",
+      "Default" : "DemoECSClusterName"
     },
     "S3BucketName": {
       "Type": "String",
-      "Description": "Name of the bucket where the zip file is stored.",
+      "Description": "Name of the bucket where the zip file with lambda code (ecs-task-rebalancer.zip) is stored.",
       "Default" : ""
     }
   },
@@ -88,9 +88,7 @@
         },
         "Environment": {
           "Variables": {
-            "ECSClusterName": {
-              "Ref": "ECSClusterName"
-            }
+            "ECSClusterName": { "Fn::ImportValue" : {"Fn::Sub" : "${ECSClusterNameExport}"}}
           }
         }
       }
@@ -108,7 +106,17 @@
           ],
           "detail": {
             "clusterArn": [
-              { "Fn::Join": [ ":", ["arn","aws","ecs",{ "Ref" : "AWS::Region" },{ "Ref" : "AWS::AccountId" },{ "Fn::Sub": "cluster/${ECSClusterName}" }]] }
+              { "Fn::Join": [ ":",
+                ["arn","aws","ecs",
+                  { "Ref" : "AWS::Region" },
+                  { "Ref" : "AWS::AccountId" },
+                  {"Fn::Join": [ "/",
+                        ["cluster",
+                          { "Fn::ImportValue" : {"Fn::Sub" : "${ECSClusterNameExport}"}}
+                        ]
+                  ]}
+                ]
+              ]}
             ]
           }
         },

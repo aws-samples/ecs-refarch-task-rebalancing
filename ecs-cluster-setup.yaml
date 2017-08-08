@@ -343,7 +343,7 @@ Resources:
     DependsOn: ALBListener
     Properties:
       Cluster: !Ref 'ECSCluster'
-      DesiredCount: '1'
+      DesiredCount: '2'
       LoadBalancers:
       - ContainerName: simple-app
         ContainerPort: '80'

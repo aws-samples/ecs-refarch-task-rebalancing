@@ -1,13 +1,18 @@
 #!/usr/bin/python
 ##Rebalance ECS Tasks on all available cluster instances
 
+#!/usr/bin/python
+##Rebalance ECS Tasks on all available cluster instances
+
 import boto3
 import botocore
+import os
 
 #Initialize ecs client
 ecs = boto3.client('ecs');
 
-cluster_name="default"
+#cluster_name="default"
+cluster_name=os.environ['ECSClusterName']
 
 def lambda_handler(event, context):
 
@@ -106,14 +111,16 @@ def lambda_handler(event, context):
     )
 
     containerInstances = response["containerInstances"]
-    containerInstance = containerInstances[0]
-    numberOfRunningTasks = containerInstance["runningTasksCount"]
-    numberOfPendingTasks = containerInstance["pendingTasksCount"]
-    version = containerInstance["version"]
+    print "Number of container instances", len(containerInstances)
+    if(len(containerInstances) != 0):
+        containerInstance = containerInstances[0]
+        numberOfRunningTasks = containerInstance["runningTasksCount"]
+        numberOfPendingTasks = containerInstance["pendingTasksCount"]
+        version = containerInstance["version"]
 
-    if numberOfRunningTasks == 0 and numberOfPendingTasks == 0 and agentConnected == True:
-        print ("Rebalancing the tasks due to the event.")
-        rebalance_tasks()
-    else :
-        print ("Event does not warrant task rebalancing.")
+        if numberOfRunningTasks == 0 and numberOfPendingTasks == 0 and agentConnected == True:
+            print ("Rebalancing the tasks due to the event.")
+            rebalance_tasks()
+        else :
+            print ("Event does not warrant task rebalancing.")
 
