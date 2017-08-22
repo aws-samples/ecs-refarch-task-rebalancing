@@ -6,11 +6,6 @@
       "Type": "String",
       "Description": "Export from the ecs cluster creation stack.",
       "Default" : "DemoECSClusterName"
-    },
-    "S3BucketName": {
-      "Type": "String",
-      "Description": "Name of the bucket where the zip file with lambda code (ecs-task-rebalancer.zip) is stored.",
-      "Default" : [{"Fn::ImportValue" : "DemoS3BucketName" }]
     }
   },
   "Resources": {
@@ -76,9 +71,7 @@
         "Handler": "ecs-task-rebalancer.lambda_handler",
         "Role": { "Fn::GetAtt" : ["LambdaExecutionRole", "Arn"] },
         "Code": {
-          "S3Bucket": {
-              "Ref": "S3BucketName"
-            },
+          "S3Bucket": { "Fn::ImportValue" : "DemoS3BucketName" },
           "S3Key": "ecs-task-rebalancer.zip"
         },
         "Runtime": "python2.7",
