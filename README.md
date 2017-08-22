@@ -29,7 +29,7 @@
 	*	We will now scale the cluster back up. Change the ASG desired count back to **2***	In the ECS console, you'll see that the second instance has been restored and the tasks have been balanced across both nodes.
 
 	![Lambda Balanced](images/lambda-balanced.png)
-6.	Review the CloudWatch logs. You'll see that a new task definition version was created causing the tasks to be rebalanced across all available nodes.
+* Review the CloudWatch logs. You'll see that a new task definition version was created causing the tasks to be rebalanced across all available nodes.
 
 	![CWL Balanced](images/cwl-balanced.png)
 
