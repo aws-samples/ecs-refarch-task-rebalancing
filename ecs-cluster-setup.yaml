@@ -180,6 +180,8 @@ Resources:
       VpcId:
         Ref: VpcId
     Type: AWS::EC2::SecurityGroup
+  DemoS3Bucket:
+    Type: "AWS::S3::Bucket"
   ECSCluster:
     Type: AWS::ECS::Cluster
   EcsSecurityGroup:
@@ -476,5 +478,10 @@ Outputs:
   ECSALB:
     Description: Your Demo Application URL
     Value: !Join ['', [!GetAtt [ECSALB, DNSName]]]
+  DemoS3Bucket:
+    Description: The S3 bucket you will upload your Lambda function
+    Value: !Ref DemoS3Bucket
+    Export:
+      Name: 'DemoS3BucketName'
   taskdef:
     Value: !Ref 'taskdefinition'

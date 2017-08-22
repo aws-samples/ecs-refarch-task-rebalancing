@@ -10,7 +10,7 @@
     "S3BucketName": {
       "Type": "String",
       "Description": "Name of the bucket where the zip file with lambda code (ecs-task-rebalancer.zip) is stored.",
-      "Default" : ""
+      "Default" : [{"Fn::ImportValue" : "DemoS3BucketName" }]
     }
   },
   "Resources": {
