@@ -121,7 +121,7 @@ If the ECS Agent is connected, but there are no running or pending tasks, then a
             print ("Updated the service ", service, "with new task definition")
 ~~~
 
-Now that we understand what the funtion is doing, let's deploy it!
+Now that we understand what the function is doing, let's deploy it!
 
 ### Deploy the Lambda Function
  
