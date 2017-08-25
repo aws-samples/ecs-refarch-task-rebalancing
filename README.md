@@ -121,7 +121,10 @@ If the ECS Agent is connected, but there are no running or pending tasks, then a
             print ("Updated the service ", service, "with new task definition")
 ~~~
 
-Now that we understand what the function is doing, let's deploy it!
+The service performs an In-Place Deployment. Two new tasks are started growing the number of tasks to 200% of its desired count which is the maximum permitted.
+![ECS Service Deployment Options](images/service-deploy-opt.png)After the new tasks are verified to be healthy by the Elastic Load Balancer health check, the two previous tasks with the older task definition are drained and stopped.
+
+![ECS Service Deployment Options](images/in-place-deploy.png)Now that we understand what the function is doing, let's deploy it!
 
 ### Deploy the Lambda Function
  

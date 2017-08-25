@@ -16,7 +16,7 @@ import os
 #Initialize ecs client
 ecs = boto3.client('ecs');
 
-#cluster_name="default"
+#Cluster name is passed in from a exported CloudFormation value
 cluster_name=os.environ['ECSClusterName']
 
 def lambda_handler(event, context):
