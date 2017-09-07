@@ -1,8 +1,6 @@
 # Rebalancing Amazon ECS Tasks using AWS Lambda
 ## Introduction 
 
-[arbitrary_id]
-
 Containerization offers many benefits to modern microservices architectures. [Amazon EC2 Container Service](https://aws.amazon.com/ecs/) (ECS) allows you to easily run Docker Containers on a managed cluster of Amazon EC2 instances. As an organization grows in maturity, cost optimizations such as Auto-Scaling and deployment methodologies such as Blue/Green can create a lot of churn in the environment. 
 
 Consider an ECS cluster with tasks distributed evenly across multiple ECS instances within the cluster.  If the cluster is scaled down in order to save cost, the tasks on the removed instance are assigned to remaining nodes automatically. However, when the ECS cluster is scaled up again, tasks are not automatically redistributed across all available instances.  This leads to unused capacity and an under-utilized cluster, which could negatively affect application availibility.
