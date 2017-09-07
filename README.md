@@ -1,10 +1,14 @@
 # Rebalancing Amazon ECS Tasks using AWS Lambda
 ## Introduction 
-Containerization offers many benefits to modern microservices architectures. [Amazon EC2 Container Service](https://aws.amazon.com/ecs/) (ECS) allows you to easily run Docker Containers on a managed cluster of Amazon EC2 instances. As an organization grows in maturity, cost optimizations such as Auto-Scaling and deployment methodologies such as [Blue/Green](https://github.com/awslabs/ecs-blue-green-deployment) can create a lot of churn in the environment. 
+
+[arbitrary_id]
+
+Containerization offers many benefits to modern microservices architectures. [Amazon EC2 Container Service](https://aws.amazon.com/ecs/) (ECS) allows you to easily run Docker Containers on a managed cluster of Amazon EC2 instances. As an organization grows in maturity, cost optimizations such as Auto-Scaling and deployment methodologies such as Blue/Green can create a lot of churn in the environment. 
 
 Consider an ECS cluster with tasks distributed evenly across multiple ECS instances within the cluster.  If the cluster is scaled down in order to save cost, the tasks on the removed instance are assigned to remaining nodes automatically. However, when the ECS cluster is scaled up again, tasks are not automatically redistributed across all available instances.  This leads to unused capacity and an under-utilized cluster, which could negatively affect application availibility.
 
-In this reference architecture, we will demonstrate a serverless approach using [AWS Lambda](https://aws.amazon.com/ecs/) and [Amazon ECS Event Stream](https://aws.amazon.com/blogs/compute/monitor-cluster-state-with-amazon-ecs-event-stream/) to proactively rebalance the ECS tasks.## Create an ECS Cluster and Deploy a Sample App For your convenience, we have created a CloudFormation template that will create the core infrastructure that we will use throughout this example. The template creates an Application Load Balancer (ALB), an ECS Cluster containing two m3.medium instances running the ECS Optimized AMI, and a task definition for a small web application. An S3 bucket is also created to host our lambda function.
+In this reference architecture, we will demonstrate a serverless approach using [AWS Lambda](https://aws.amazon.com/ecs/) and Amazon ECS Event Stream to proactively rebalance the ECS tasks.## Create an ECS Cluster and Deploy a Sample App
+For your convenience, we have created a CloudFormation template that will create the core infrastructure that we will use throughout this example. The template creates an Application Load Balancer (ALB), an ECS Cluster containing two m3.medium instances running the ECS Optimized AMI, and a task definition for a small web application. An S3 bucket is also created to host our lambda function.
 
 ![Core Infrastructure](images/core-infrastructure.png)
 
@@ -146,5 +150,19 @@ The service performs an In-Place Deployment. Two new tasks are started growing t
 * Review the CloudWatch logs. You'll see that a new task definition version was created causing the tasks to be rebalanced across all available nodes.
 
 	![CWL Balanced](images/cwl-balanced.png)
+	
+### Clean Up
+
+Now we will clean up the resources that we created to avoid being charged. CloudFormation cannot delete an bucket that is not empty.  We will delete the lambda function zip file from the S3 bucket. Next, delete the lambda function CloudFormation stack that we created, this will delete the lambda functions. Next delete the ecs cluster stack. This should delete all the resources that were created for this exercise
+
+### Conclusion
+We have explored using the ECS event stream to proactively rebalance ECS tasks. If you'd like to dive deeper into any of these topics, please check out the following links:
+
+[Monitor Cluster State with Amazon ECS Event Stream](https://aws.amazon.com/blogs/compute/monitor-cluster-state-with-amazon-ecs-event-stream/)
+
+[ECS Reference Architecture: Continuous Deployment](https://github.com/awslabs/ecs-refarch-continuous-deployment)
+
+[Blue/Green deployments on ECS](https://github.com/awslabs/ecs-blue-green-deployment) 
+
 
 
