@@ -1,11 +1,18 @@
 # Rebalancing Amazon ECS Tasks using AWS Lambda
-## Introduction 
+
+
+1. [Introduction](#intro)
+2. [Create an ECS Cluster and Deploy a Sample App](#create)
+3. [Use ECS Events to Rebalance Tasks](#rebalance)
+4. [Clean Up](#cleanup)
+
+<a name="intro"></a>## Introduction 
 
 Containerization offers many benefits to modern microservices architectures. [Amazon EC2 Container Service](https://aws.amazon.com/ecs/) (ECS) allows you to easily run Docker Containers on a managed cluster of Amazon EC2 instances. As an organization grows in maturity, cost optimizations such as Auto-Scaling and deployment methodologies such as Blue/Green can create a lot of churn in the environment. 
 
 Consider an ECS cluster with tasks distributed evenly across multiple ECS instances within the cluster.  If the cluster is scaled down in order to save cost, the tasks on the removed instance are assigned to remaining nodes automatically. However, when the ECS cluster is scaled up again, tasks are not automatically redistributed across all available instances.  This leads to unused capacity and an under-utilized cluster, which could negatively affect application availibility.
 
-In this reference architecture, we will demonstrate a serverless approach using [AWS Lambda](https://aws.amazon.com/ecs/) and Amazon ECS Event Stream to proactively rebalance the ECS tasks.## Create an ECS Cluster and Deploy a Sample App
+In this reference architecture, we will demonstrate a serverless approach using [AWS Lambda](https://aws.amazon.com/ecs/) and Amazon ECS Event Stream to proactively rebalance the ECS tasks.<a name="create"></a>## Create an ECS Cluster and Deploy a Sample App
 For your convenience, we have created a CloudFormation template that will create the core infrastructure that we will use throughout this example. The template creates an Application Load Balancer (ALB), an ECS Cluster containing two m3.medium instances running the ECS Optimized AMI, and a task definition for a small web application. An S3 bucket is also created to host our lambda function.
 
 ![Core Infrastructure](images/core-infrastructure.png)
@@ -24,7 +31,7 @@ In this reference architecture, we will demonstrate a serverless approach using 
 	![All Tasks on a Single Node](images/pre-singlenode.png)
 *	Change the ASG desired count back to **2**.*	Observe that a new instance is created, but tasks did not balance across both nodes. This is the default behavior of ECS.
 
-	![Unbalanced Tasks](images/pre-unbalanced.png)## Use ECS Events to Rebalance TasksWe propose a solution that listens to “ECS Container Instance State Change” events on the ECS event stream and triggers a lambda that rebalances tasks on the ECS cluster. ![Rebalancing Diagram](images/rebalancing-diagram.png)This involves:* Creating a Lambda function that will rebalance tasks on ECS cluster by updating the service deployed on the cluster.  * 	Creating a Cloud Watch Event, that uses “ECS Container Instance. State Change” event from the ECS event stream as a trigger to execute the lambda function that rebalances the tasks.### Explore the Lambda Function
+	![Unbalanced Tasks](images/pre-unbalanced.png)<a name="rebalance"></a>## Use ECS Events to Rebalance TasksWe propose a solution that listens to “ECS Container Instance State Change” events on the ECS event stream and triggers a lambda that rebalances tasks on the ECS cluster. ![Rebalancing Diagram](images/rebalancing-diagram.png)This involves:* Creating a Lambda function that will rebalance tasks on ECS cluster by updating the service deployed on the cluster.  * 	Creating a Cloud Watch Event, that uses “ECS Container Instance. State Change” event from the ECS event stream as a trigger to execute the lambda function that rebalances the tasks.### Explore the Lambda Function
 The code for our lambda function is `ecs-task-rebalancer.py` and can be found at <https://github.com/awslabs/ecs-refarch-task-rebalancing/blob/master/ecs-task-rebalancer.py>. 
 
 Let's take a look at what this script it doing in more detail. The Lambda function will be triggered by a specific CloudWatch Event from ECS. Details of the trigger are below.
@@ -149,7 +156,8 @@ The service performs an In-Place Deployment. Two new tasks are started growing t
 
 	![CWL Balanced](images/cwl-balanced.png)
 	
-### Clean Up
+<a name="cleanup"></a>	
+## Clean Up
 
 Now we will clean up the resources that we created to avoid being charged. CloudFormation cannot delete an bucket that is not empty.  We will delete the lambda function zip file from the S3 bucket. Next, delete the lambda function CloudFormation stack that we created, this will delete the lambda functions. Next delete the ecs cluster stack. This should delete all the resources that were created for this exercise
 
