@@ -156,6 +156,8 @@ The service performs an In-Place Deployment. Two new tasks are started growing t
 
 	![CWL Balanced](images/cwl-balanced.png)
 	
+*Disclaimer: This solution works by creating new versions of the task definitions to trigger the rebalancing. This may impact applications with long lived connections. This will also create new task definition versions which are not deleted. Please test the solution with your application to ensure it will function as expected.*	
+	
 <a name="cleanup"></a>	
 ## Clean Up
 
