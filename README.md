@@ -46,7 +46,7 @@ Let's take a look at what this script it doing in more detail. The Lambda functi
 		],
 		"detail": {
 			"clusterArn": [
-				"arn:aws:ecs:us-west-2:194518515516:cluster/ECS-				Rebalancing-Stack-ECSCluster"
+				"arn:aws:ecs:us-west-2:<AWS ACCOUNT NUMBER>:cluster/ECS-				Rebalancing-Stack-ECSCluster"
        	]
       }
     }
