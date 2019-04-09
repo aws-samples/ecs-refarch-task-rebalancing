@@ -4,7 +4,7 @@ Metadata:
   Authors:
     Description: Shawn OConnor (shawo@amazon.com), Sireesha Muppala (smuppala@amazon.com)
   License:
-    Description: 'Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+    Description: 'Copyright 2017 Amazon.com, Inc. or its affiliates. All Rights Reserved.
      SPDX-License-Identifier: MIT-0'
 Parameters:
   sourceCidr:
