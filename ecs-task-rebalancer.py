@@ -44,6 +44,17 @@ def lambda_handler(event, context):
 
         return all_services
 
+    def copy_task_definition(task_definition):
+        new_task_definition = {}
+        copy_fields = ["family", "taskRoleArn", "executionRoleArn", "networkMode",
+                       "containerDefinitions", "volumes", "placementConstraints",
+                       "requiresCompatibilities", "cpu", "memory"]
+        for f in copy_fields:
+            if f in task_definition:
+                new_task_definition[f] = task_definition[f]
+
+        return new_task_definition
+    
     #Rebalance ECS tasks of all services deployed in the cluster
     def rebalance_tasks():
         all_services = get_cluster_services()
@@ -79,11 +90,7 @@ def lambda_handler(event, context):
             print ("family : ", family)
 
             #Register a new version of the task_definition
-            response = ecs.register_task_definition(
-                family=family,
-                containerDefinitions=containerDefinitions,
-                volumes= volumes
-            )
+            response = ecs.register_task_definition(**copy_task_definition(taskDefinitionDescription))
 
             newTaskDefinitionArn = response["taskDefinition"]["taskDefinitionArn"]
             print "New task definition arn : " , newTaskDefinitionArn
