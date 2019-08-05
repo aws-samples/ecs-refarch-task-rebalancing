@@ -51,18 +51,17 @@ def lambda_handler(event, context):
         #For each service, figure out the taskDefinition, register a new version
         #and update the service -- This sequence will rebalance the tasks on all
         #available and connected instances
-        response = ecs.describe_services(
-            cluster=cluster_name,
-            services=all_services
-        )
+        for service in all_services:
+            response = ecs.describe_services(
+                cluster=cluster_name,
+                services=[service]
+            )
 
-        described_services = response["services"]
-        for service in described_services:
-
-            print ("service : ", service)
+            described_service = response["services"][0]
+            print ("service : ", described_service)
 
             #Get information about the task definition of the service
-            task_definition = service["taskDefinition"];
+            task_definition = described_service["taskDefinition"]
 
             response = ecs.describe_task_definition(
                 taskDefinition=task_definition
