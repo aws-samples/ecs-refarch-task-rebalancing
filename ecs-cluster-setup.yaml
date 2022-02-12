@@ -60,9 +60,6 @@ Mappings:
       AMIID: ami-5781be34
 Resources:
   attachGateway:
-    DependsOn:
-    - VpcId
-    - internetGateway
     Properties:
       InternetGatewayId:
         Ref: internetGateway
@@ -74,10 +71,6 @@ Resources:
     - VpcId
     Type: AWS::EC2::InternetGateway
   publicRoute:
-    DependsOn:
-    - publicRouteTable
-    - internetGateway
-    - attachGateway
     Properties:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId:
@@ -86,9 +79,6 @@ Resources:
         Ref: publicRouteTable
     Type: AWS::EC2::Route
   publicRouteTable:
-    DependsOn:
-    - VpcId
-    - attachGateway
     Properties:
       Tags:
       - Key: Name
@@ -117,10 +107,6 @@ Resources:
         Ref: VpcId
     Type: AWS::EC2::Subnet
   publicSubnet1RouteTableAssociation:
-    DependsOn:
-    - publicRouteTable
-    - publicSubnet1
-    - attachGateway
     Properties:
       RouteTableId:
         Ref: publicRouteTable
@@ -148,10 +134,6 @@ Resources:
         Ref: VpcId
     Type: AWS::EC2::Subnet
   publicSubnet2RouteTableAssociation:
-    DependsOn:
-    - publicRouteTable
-    - publicSubnet2
-    - attachGateway
     Properties:
       RouteTableId:
         Ref: publicRouteTable
@@ -159,8 +141,6 @@ Resources:
         Ref: publicSubnet2
     Type: AWS::EC2::SubnetRouteTableAssociation
   securityGroup:
-    DependsOn:
-    - VpcId
     Properties:
       GroupDescription: ECS Instance Security Group
       SecurityGroupIngress:
@@ -278,7 +258,6 @@ Resources:
       Protocol: HTTP
   ECSALBListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
-    DependsOn: ALBListener
     Properties:
       Actions:
       - Type: forward
@@ -305,7 +284,7 @@ Resources:
   ECSAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      VPCZoneIdentifier: 
+      VPCZoneIdentifier:
       - Ref: publicSubnet1
       - Ref: publicSubnet2
       LaunchConfigurationName: !Ref 'ContainerInstances'
@@ -322,7 +301,7 @@ Resources:
         Timeout: PT15M
     UpdatePolicy:
       AutoScalingReplacingUpdate:
-        WillReplace: 'true'
+        WillReplace: true
   ContainerInstances:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
@@ -371,7 +350,6 @@ Resources:
             Resource: '*'
   ServiceScalingTarget:
     Type: AWS::ApplicationAutoScaling::ScalableTarget
-    DependsOn: service
     Properties:
       MaxCapacity: 2
       MinCapacity: 1
