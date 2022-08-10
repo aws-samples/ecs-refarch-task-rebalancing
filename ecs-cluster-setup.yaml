@@ -31,6 +31,9 @@ Parameters:
       c3.2xlarge, c3.4xlarge, c3.8xlarge, r3.large, r3.xlarge, r3.2xlarge, r3.4xlarge,
       r3.8xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge]
     ConstraintDescription: Please choose at least an m3.medium instance type.
+  BucketName:
+    Type: String
+    Description: The name of the S3 bucket used to store lambda for deployment.
 Mappings:
   CidrMappings:
     public-subnet-1:
@@ -154,6 +157,14 @@ Resources:
     Type: AWS::EC2::SecurityGroup
   DemoS3Bucket:
     Type: "AWS::S3::Bucket"
+    Properties:
+      BucketName: !Ref BucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration: 
+        - ServerSideEncryptionByDefault:
+            SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
   ECSCluster:
     Type: AWS::ECS::Cluster
   EcsSecurityGroup:
