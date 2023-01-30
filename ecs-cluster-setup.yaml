@@ -233,7 +233,7 @@ Resources:
             ; sleep 1; done"']
         EntryPoint: [sh, -c]
         Essential: false
-        Image: busybox
+        Image: <Removing busybox image temporarily for replace>
         Memory: 200
         LogConfiguration:
           LogDriver: awslogs
