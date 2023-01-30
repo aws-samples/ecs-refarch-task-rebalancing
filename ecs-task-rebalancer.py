@@ -49,11 +49,20 @@ def lambda_handler(event, context):
     # Rebalance ECS tasks of all services deployed in the cluster
     def rebalance_tasks():
         all_services = get_cluster_services()
+        for service in all_services:
+            print("Rebalancing tasks for service: " + service)
+            response = ecs.update_service(
+                cluster=cluster_name,
+                service=service,
+                forceNewDeployment=True
+            )
 
         # For each service, figure out the taskDefinition, register a new version
         # and update the service -- This sequence will rebalance the tasks on all
         # available and connected instances
-        response = ecs.describe_services(
+
+
+"""         response = ecs.describe_services(
             cluster=cluster_name,
             services=all_services
         )
@@ -112,7 +121,7 @@ def lambda_handler(event, context):
 
     containerInstances = response["containerInstances"]
     print(f"Number of container instances {len(containerInstances)}")
-    if(len(containerInstances) != 0):
+    if (len(containerInstances) != 0):
         containerInstance = containerInstances[0]
         numberOfRunningTasks = containerInstance["runningTasksCount"]
         numberOfPendingTasks = containerInstance["pendingTasksCount"]
@@ -122,3 +131,4 @@ def lambda_handler(event, context):
             rebalance_tasks()
         else:
             print("Event does not warrant task rebalancing.")
+ """

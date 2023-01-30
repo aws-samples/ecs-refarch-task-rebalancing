@@ -209,7 +209,7 @@ Resources:
       - Name: simple-app
         Cpu: '10'
         Essential: 'true'
-        Image: httpd:2.4
+        Image: <REPLACE with Apache container image>
         Memory: '300'
         LogConfiguration:
           LogDriver: awslogs
