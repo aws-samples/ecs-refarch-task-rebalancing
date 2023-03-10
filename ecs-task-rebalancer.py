@@ -2,43 +2,42 @@
 # Rebalance ECS Tasks on all available cluster instances
 # 2022-02-11 updates for Python 3.9 runtimes
 
-"""// Copyright 2017,2022 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+"""// Copyright 2017,2022 Amazon.com, Inc. or its affiliates.
+   // All Rights Reserved.
    // SPDX-License-Identifier: MIT-0"""
+
+import os
 
 import boto3
 import botocore
-import os
 
 # Initialize ecs client
-ecs = boto3.client('ecs')
+ecs = boto3.client("ecs")
 
 # Cluster name is passed in from a exported CloudFormation value
-cluster_name = os.environ['ECSClusterName']
+cluster_name = os.environ["ECSClusterName"]
 
 
 def lambda_handler(event, context):
+    """A short Lambda function that will force a redeploy to rebalance your
+    ECS cluster."""
 
     # Return all services deployed in the cluster
     def get_cluster_services():
-        isTruncated = "True"
-        nextToken = ""
+        is_truncated = "True"
+        next_token = ""
         all_services = []
 
-        while ("True" == isTruncated):
-            if "" == nextToken:
-                response = ecs.list_services(
-                    cluster=cluster_name
-                )
+        while "True" == is_truncated:
+            if "" == next_token:
+                response = ecs.list_services(cluster=cluster_name)
             else:
-                response = ecs.list_services(
-                    cluster=cluster_name,
-                    nextToken=nextToken
-                )
+                response = ecs.list_services(cluster=cluster_name, nextToken=next_token)
 
             if "nextToken" in response:
-                nextToken = response["nextToken"]
+                next_token = response["nextToken"]
             else:
-                isTruncated = "False"
+                is_truncated = "False"
 
             services = response["serviceArns"]
             for service in services:
@@ -52,83 +51,5 @@ def lambda_handler(event, context):
         for service in all_services:
             print("Rebalancing tasks for service: " + service)
             response = ecs.update_service(
-                cluster=cluster_name,
-                service=service,
-                forceNewDeployment=True
+                cluster=cluster_name, service=service, forceNewDeployment=True
             )
-
-        # For each service, figure out the taskDefinition, register a new version
-        # and update the service -- This sequence will rebalance the tasks on all
-        # available and connected instances
-
-
-"""         response = ecs.describe_services(
-            cluster=cluster_name,
-            services=all_services
-        )
-
-        described_services = response["services"]
-        for service in described_services:
-
-            print(f"service : {service}")
-
-            # Get information about the task definition of the service
-            task_definition = service["taskDefinition"]
-
-            response = ecs.describe_task_definition(
-                taskDefinition=task_definition
-            )
-
-            taskDefinitionDescription = response["taskDefinition"]
-
-            containerDefinitions = taskDefinitionDescription["containerDefinitions"]
-            volumes = taskDefinitionDescription["volumes"]
-            family = taskDefinitionDescription["family"]
-
-            print(f"containerDefinitions : {containerDefinitions}")
-            print(f"volumes : {volumes}")
-            print(f"family : {family}")
-
-            # Register a new version of the task_definition
-            response = ecs.register_task_definition(
-                family=family,
-                containerDefinitions=containerDefinitions,
-                volumes=volumes
-            )
-
-            newTaskDefinitionArn = response["taskDefinition"]["taskDefinitionArn"]
-            print(f"New task definition arn : {newTaskDefinitionArn}")
-
-            response = ecs.update_service(
-                cluster=cluster_name,
-                service=service["serviceArn"],
-                taskDefinition=newTaskDefinitionArn
-            )
-
-            print(f"Updated the service {service} with new task definition")
-
-    ###############################################
-    # Get details about the ECS container instance from the event
-    event_detail = event["detail"]
-    containerInstanceArn = event_detail["containerInstanceArn"]
-    agentConnected = event_detail["agentConnected"]
-
-    # Describe the container instance that caused the event.
-    response = ecs.describe_container_instances(
-        cluster=cluster_name,
-        containerInstances=[containerInstanceArn]
-    )
-
-    containerInstances = response["containerInstances"]
-    print(f"Number of container instances {len(containerInstances)}")
-    if (len(containerInstances) != 0):
-        containerInstance = containerInstances[0]
-        numberOfRunningTasks = containerInstance["runningTasksCount"]
-        numberOfPendingTasks = containerInstance["pendingTasksCount"]
-
-        if numberOfRunningTasks == 0 and numberOfPendingTasks == 0 and agentConnected is True:
-            print("Rebalancing the tasks due to the event.")
-            rebalance_tasks()
-        else:
-            print("Event does not warrant task rebalancing.")
- """
